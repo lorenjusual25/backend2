@@ -1,16 +1,16 @@
 import * as userModel from '../models/userModel.js'
-export function addUser (data) {
-    return userModel.addUser(data)
+export async function addUser (data) {
+    return await userModel.create(data)
 }
-export function findAllUsers () {
-    return userModel.findAllUsers()
+export async function findAllUsers () {
+    return await userModel.find({})
 }
-export function findUserById (id) {
-    return userModel.findUserById(id)
+export async function findUserById (id) {
+    return await userModel.findById(id)
 }
-export function findUserByName (name) {
-    return userModel.findUserByName(name)
+export async function findUserByName (name) {
+    return await userModel.findOne({name})
 }
-export function deleteUserById (id) {
-    return userModel.deleteUserById(id)
+export async function deleteUserById (id) {
+    return await userModel.findByIdAndDelete(id)
 }

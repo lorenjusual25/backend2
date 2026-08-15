@@ -1,13 +1,13 @@
 import * as eventModel from '../models/eventModel.js'
-export function findAllEvents (){
-    return eventModel.findAllEvents()
+export async function createEvent (e) {
+    return await eventModel.create(e)
 }
-export function createEvent (e) {
-    return eventModel.createEvent(e)
+export async function findAllEvents (){
+    return await eventModel.find({})
 }
-export function findEventById (id) {
-    return eventModel.findEventById(id)
+export async function findEventById (id) {
+    return await eventModel.findById(id)
 }
-export function findEventByTitle (title) {
-    return eventModel.findEventByTitle(title)
+export async function findEventByTitle (title) {
+    return await eventModel.findOne({title})
 }

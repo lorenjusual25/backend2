@@ -1,4 +1,20 @@
-const events = []
+import mongoose, { Schema,model } from "mongoose";
+const eventSchema = new Schema({
+    title: {
+        type:String,
+        required:true
+    },
+    date: {
+        type:Date,
+        required:true
+    },
+    location: {
+        type:String,
+        required:true
+    }
+})
+export const eventModel = mongoose.model("event",eventSchema)
+/*
 export function createEvent (e) {
     const event = {
         id:events.length + 1,
@@ -17,4 +33,4 @@ export function findEventById (id) {
 }
 export function findEventByTitle(title) {
     return events.find(e => e.title === title)
-}
+}*/

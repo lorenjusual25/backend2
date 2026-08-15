@@ -1,10 +1,10 @@
 import * as sessionModel from '../models/sessionModel.js'
-export function createSession (s,eventId,user) {
-    return sessionModel.createSession(s,eventId,user)
+export async function createSession (eventId,userId) {
+    return await sessionModel.sessionModel.create({eventId,userId})
 }
-export function findAllSessions () {
-    return sessionModel.findAllSessions()
+export async function findAllSessions () {
+    return await sessionModel.findAllSessions()
 }
-export function findSessionsByEvent(eventId) {
-    return sessionModel.findSessionsByEvent(eventId)
+export async function findSessionsByEvent(eventId) {
+    return await sessionModel.findSessionsByEvent(eventId)
 }
