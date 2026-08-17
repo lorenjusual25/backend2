@@ -1,13 +1,13 @@
 import * as eventDao from '../dao/event.dao.js'
-export function findAllEvents() {
-    return eventDao.findAllEvents()
+export async function findAllEvents() {
+    return await eventDao.findAllEvents()
 }
-export function findEventById(id) {
-    return eventDao.findEventById(id)
+export async function findEventById(id) {
+    return await eventDao.findEventById(id)
 }
-export function createEvent(e) {
-    return eventDao.createEvent(e)
+export async function createEvent(e) {
+    return await eventDao.createEvent(e)
 }
-export function findEventByTitle(title) {
-    return eventDao.findEventByTitle(title)
+export async function findEventByTitle(title) {
+    return await eventDao.findEventByTitle(title)
 }

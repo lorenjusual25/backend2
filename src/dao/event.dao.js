@@ -1,4 +1,4 @@
-import * as eventModel from '../models/eventModel.js'
+import {eventModel} from '../models/eventModel.js'
 export async function createEvent (e) {
     return await eventModel.create(e)
 }

@@ -1,10 +1,13 @@
 import * as sessionDao from '../dao/session.dao.js'
-export function createSession (s,eventId,user) {
-    return sessionDao.createSession(s,eventId,user)
+export async function createSession (session) {
+    return await sessionDao.createSession(session)
 }
-export function findAllSessions() {
-    return sessionDao.findAllSessions()
+export async function findAllSessions() {
+    return await sessionDao.findAllSessions()
 }
-export function findSessionsByEvent (eventId) {
-    return sessionDao.findSessionsByEvent(eventId)
+export async function findSessionsByEvent (eventId) {
+    return await sessionDao.findSessionsByEvent(eventId)
+}
+export async function findUserInSession(eventId,userId) {
+    return await sessionDao.findUserInSession(eventId,userId)
 }
