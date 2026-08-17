@@ -1,4 +1,5 @@
-import {createHash,validatePassword} from'../utils/hash.js'
+import {createHash} from'../utils/hash.js'
+const longMinPass = 8
 export function createSessionService(sessionRepository,eventRepository,userRepository) {
     return {
         async createSession (session) {
@@ -34,6 +35,13 @@ export function createSessionService(sessionRepository,eventRepository,userRepos
             if (!first_name || !last_name || !email || !password) {
                 throw new Error("Faltan campos")
             }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            if (!emailRegex.test(email)) {
+                throw new Error("No es un formato email correcto")
+            }
+            if (password.length > longMinPass) {
+                throw new Error(`La contraseña no puede tener una cantidad de caracteres mayor a ${longMinPass}`)
+            }
             const emailExiste = await userRepository.findEmail(email)
             if (emailExiste) {
                 throw new Error("Este email ya existe")
@@ -43,15 +51,15 @@ export function createSessionService(sessionRepository,eventRepository,userRepos
                 last_name,
                 email,
                 password:await createHash(userData.password),
-                role:userData.role
+                role:"user"
             }
-            await userRepository.addUser(user)
+            const newUser = await userRepository.addUser(user)
             return ({
-                id:user._id,
-                first_name:user.first_name,
-                last_name:user.last_name,
-                email:user.email,
-                role:user.role
+                id:newUser._id,
+                first_name:newUser.first_name,
+                last_name:newUser.last_name,
+                email:newUser.email,
+                role:newUser.role
             })
         }
     }
