@@ -1,4 +1,4 @@
-import {createHash} from'../utils/hash.js'
+import {createHash,validatePassword} from'../utils/hash.js'
 const longMinPass = 8
 export function createSessionService(sessionRepository,eventRepository,userRepository) {
     return {
@@ -33,18 +33,26 @@ export function createSessionService(sessionRepository,eventRepository,userRepos
             const email = userData.email?.trim().toLowerCase()
             const password = userData.password
             if (!first_name || !last_name || !email || !password) {
-                throw new Error("Faltan campos")
+                const error = new Error("Faltan campos")
+                error.status = 400
+                throw error
             }
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
             if (!emailRegex.test(email)) {
-                throw new Error("No es un formato email correcto")
+                const error = new Error("No es un formato email correcto")
+                error.status = 400
+                throw error
             }
             if (password.length > longMinPass) {
-                throw new Error(`La contraseña no puede tener una cantidad de caracteres mayor a ${longMinPass}`)
+                const error = new Error(`La longitud minima de contraseña es de ${longMinPass}`)
+                error.status = 400
+                throw error
             }
             const emailExiste = await userRepository.findEmail(email)
             if (emailExiste) {
-                throw new Error("Este email ya existe")
+                const error = new Error("Este email ya existe")
+                error.status = 409
+                throw error
             }
             const user = {
                 first_name,
@@ -61,6 +69,32 @@ export function createSessionService(sessionRepository,eventRepository,userRepos
                 email:newUser.email,
                 role:newUser.role
             })
+        },
+        async login(email,password) {
+            if (!email || !password) {
+                const error = new Error("Faltan campos")
+                error.status = 400
+                throw error
+            }
+            const normalizedEmail = email.toLowerCase().trim()
+            const user = await userRepository.findEmail(normalizedEmail)
+            if (!user) {
+                const error = new Error("Credenciales incorrectas")
+                error.status = 401
+                throw error
+            }
+            const validPassword = await validatePassword(password,user.password)
+            if(!validPassword) {
+                const error = new Error("Credenciales incorrectas")
+                error.status = 401
+                throw error
+            }
+            const payload = {
+                id:user._id,
+                email:normalizedEmail,
+                role:user.role
+            }
+            return payload
         }
     }
 }
