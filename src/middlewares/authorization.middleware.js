@@ -25,7 +25,7 @@ export const authEventOwnerOrAdmin = async (req,res,next) => {
     if (!event) {
         return res.status(404).json({
             status:"error",
-            error:"NOT_FOUND",
+            error:"EVENT_NOT_FOUND",
             message:"evento no encontrado"})
     }
     const isAdmin = req.user.role === "admin"

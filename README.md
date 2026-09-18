@@ -40,6 +40,40 @@ npm run dev
 - `GET /api/events`
 - `GET /api/events/:id`
 - `POST /api/events/createEvent`
+- `PUT /api/events/updateEvent/:id`
+- `GET /api/events/admin/getEvents`
+
+### Autorización por roles
+
+El registro público siempre crea usuarios con el rol `user`. El rol enviado en el body se ignora para evitar que un usuario se asigne permisos de `organizer` o `admin`.
+
+| Ruta | user | organizer | admin |
+| --- | --- | --- | --- |
+| `GET /api/events` | Permitido | Permitido | Permitido |
+| `GET /api/events/:id` | No permitido | Permitido solo para sus eventos | Permitido |
+| `POST /api/events/createEvent` | No permitido | Permitido | Permitido |
+| `PUT /api/events/updateEvent/:id` | No permitido | Permitido solo para sus eventos | Permitido para cualquier evento |
+| `GET /api/events/admin/getEvents` | No permitido | No permitido | Permitido |
+
+Las rutas protegidas requieren una cookie `currentUser` con un JWT válido. Si no existe una sesión válida, la API responde `401 Unauthorized`:
+
+```json
+{
+    "status": "error",
+    "error": "Unauthenticated",
+    "message": "No autenticado"
+}
+```
+
+Si el usuario está autenticado pero su rol no tiene permiso para acceder al recurso, la API responde `403 Forbidden`:
+
+```json
+{
+    "status": "error",
+    "error": "Unauthorized",
+    "message": "No tenes permisos"
+}
+```
 
 ### Sesiones
 
@@ -74,7 +108,8 @@ backend2/
 |   ├── dto/
 |   |   └── userDTO.js
 │   ├── middlewares/
-|   |   └── authentication.middleware.js
+|   |   ├── authentication.middleware.js
+|   |   ├── authorization.middleware.js
 │   │   └── error.middleware.js
 │   ├── models/
 │   │   ├── eventModel.js
@@ -92,7 +127,7 @@ backend2/
 |   |   ├── session.service.js
 │   │   └── user.service.js
 │   └── utils/
-│       └── hash.js
+│       ├── hash.js
 |       └── jwt.js
 ├── .env.example
 ├── .gitignore
@@ -342,3 +377,8 @@ Estas variables no deben incluirse en el repositorio. El archivo `.env.example` 
 - ![captura de /current con status 200](img/current200.png)
 - ![captura de /logout con status 200](img/logout200.png)
 - ![captura de /current con status 401](img/current401.png)
+### Entrega 5
+- ![capture de POST api/events/createEvent con status 403 para rol user](img/posteventUser403.png)
+- ![capture de POST api/events/createEvent con status 201 para rol organizer](img/posteventOrg201.png)
+- ![capture de ruta administratiiva con status 403 para rol organizer](img/adminEventOrg403.png)
+- ![capture de ruta administrativa con status 200 para rol admin](img/adminEventAdmin200.png)
