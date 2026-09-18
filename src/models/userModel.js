@@ -7,7 +7,7 @@ const userSchema = new Schema(
             trim:true
         },
         last_name:{
-            required:true,
+            required:false,
             type:String,
             trim:true
         },
@@ -19,7 +19,7 @@ const userSchema = new Schema(
             lowercase:true,
         },
         password: {
-            required:true,
+            required:false,
             type:String,
         },
         role:{

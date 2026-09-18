@@ -29,3 +29,11 @@ export async function createEvent (req,res,next) {
         next(error)
     }
 }
+export async function updateEvent(req,res,next) {
+    try {
+        const event = req.body
+        
+    } catch(error) {
+        next(error)
+    }
+}
