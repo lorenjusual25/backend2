@@ -22,7 +22,10 @@ export async function getEventById (req,res,next) {
 }
 export async function createEvent (req,res,next) {
     try {
-        const event = req.body
+        const event = {
+            ...req.body,
+            organizer:req.user._id
+        }
         await eventService.createEvent(event)
         return res.status(201).json({message: "evento creado", event:event})
     } catch (error) {
@@ -31,8 +34,12 @@ export async function createEvent (req,res,next) {
 }
 export async function updateEvent(req,res,next) {
     try {
-        const event = req.body
-        
+        const {id} = req.params
+        const event = await eventService.updateEvent(id, req.body)
+        return res.status(200).json({
+            status: "success",
+            payload: event
+        });
     } catch(error) {
         next(error)
     }

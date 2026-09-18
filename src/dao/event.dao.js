@@ -12,5 +12,5 @@ export async function findEventByTitle (title) {
     return await eventModel.findOne({title})
 }
 export async function updateEvent (id, eventData) {
-    return await eventModel.updateById(id, eventData)
+    return await eventModel.findByIdAndUpdate(id,eventData,{new:true, runValidators:true})
 }

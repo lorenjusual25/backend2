@@ -19,6 +19,9 @@ export function createEventService (eventRepository) {
         },
         async findAllEvents() {
             return eventRepository.findAllEvents()
+        },
+        async updateEvent(id,eventData) {
+            return eventRepository.updateEvent(id,eventData)
         }
     }
 }
