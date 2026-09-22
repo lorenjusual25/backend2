@@ -61,7 +61,7 @@ export function createEventService (eventRepository) {
         },
         async findEventById(id) {
             if (!mongoose.isValidObjectId(id)) {
-                throw businessError("El ID del evento no es valido",404)
+                throw businessError("El ID del evento no es valido",400)
             }
             const event = await eventRepository.findEventById(id)
             if (!event) {

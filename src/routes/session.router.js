@@ -8,13 +8,15 @@ import {findAllSessions,
     logout,
     githubCallback
 } from '../controllers/session.controller.js'
+import {authorizeRoles,authEventOwnerOrAdmin} from '../middlewares/authorization.middleware.js'
 //import { authMiddleware } from '../middlewares/authentication.middleware.js'
 import passport from 'passport'
 const router = Router()
-router.get('/', findAllSessions)
-router.post('/createSession',createSession)
+const authenticate = passport.authenticate('current', {session: false})
+router.get('/', authenticate,authorizeRoles('admin'),findAllSessions)
+router.post('/createSession',authenticate,createSession)
 //router.get('/current',authMiddleware,getCurrentUser)
-router.get('/eventId/:eventId',findSessionsByEvent)
+router.get('/eventId/:eventId',authenticate,findSessionsByEvent)
 //router.post('/register',register)
 //router.post('/login',login)
 router.post('/logout',logout)

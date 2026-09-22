@@ -33,16 +33,20 @@ passport.use('login',new LocalStrategy(
         passwordField:"password"
     },
     async (email,password,done) => {
-        const normalEmail = email?.trim().toLowerCase()
-        const user = await userRepository.findEmail(normalEmail)
-        if (!user) {
-            return done(null,false,"Credenciales invalidas")
+        try {
+            const normalEmail = email?.trim().toLowerCase()
+            const user = await userRepository.findEmail(normalEmail)
+            if (!user || !user.password) {
+                return done(null,false,"Credenciales invalidas")
+            }
+            const validPassword = await validatePassword(password,user.password)
+            if (!validPassword) {
+                return done(null,false,"Credenciales invalidas")
+            }
+            return done(null,user)
+        } catch (error) {
+            return donde(error)
         }
-        const validPassword = await validatePassword(password,user.password)
-        if (!validPassword) {
-            return done(null,false,"Credenciales invalidas")
-        }
-        return done(null,user)
     }
 ))
 passport.use('github',new GitHubStrategy(

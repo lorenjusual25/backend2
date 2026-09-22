@@ -7,9 +7,12 @@ import { UserDTO } from '../dto/userDTO.js'
 const sessionService = createSessionService(sessionRepository,eventRepository,userRepository)
 export async function createSession(req,res,next) {
     try {
-        const session = req.body
-        const s = await sessionService.createSession(session)
-        return res.status(201).json({status:"success",message:"sesion creada",payload:s})
+        const session = {
+            eventId: req.body.eventId,
+            userId: req.user._id
+        }
+        const createdSession = await sessionService.createSession(session)
+        return res.status(201).json({status:"success",message:"inscripcion creada",payload:createdSession})
     } 
     catch (error) {
         next(error)

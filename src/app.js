@@ -1,6 +1,7 @@
 import express from 'express';
 import eventRouter from './routes/event.router.js';
 import sessionRouter from './routes/session.router.js';
+import ticketRouter from './routes/ticket.router.js'
 import { errorHandler } from './middlewares/error.middleware.js';
 import cookieParser from 'cookie-parser'
 import passport from 'passport'
@@ -14,5 +15,6 @@ app.get('/api/health', (req, res) => {
 })
 app.use('/api/events',eventRouter)
 app.use('/api/sessions',sessionRouter)
+app.use('/api/tickets',ticketRouter)
 app.use(errorHandler)
 export default app
