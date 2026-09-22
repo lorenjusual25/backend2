@@ -17,7 +17,7 @@ Repositorio de entregas para la materia Programacion Backend II: Diseño y Arqui
 - passport-github2
 - passport-jwt
 - passport-local
-
+- nodemailer
 ## Instalación
 ```bash
 npm install
@@ -139,6 +139,92 @@ Si el usuario está autenticado pero su rol no tiene permiso para acceder al rec
 - `POST /api/sessions/logout`
 - `GET /api/sessions/current`
 - `GET /api/sessions/github/callback`
+
+### Tickets e inscripciones
+
+#### Rutas
+
+- `POST /api/events/:eventId/tickets` - Crea una inscripción. Requiere autenticación.
+- `GET /api/tickets/my-tickets` - Devuelve los tickets del usuario autenticado. Requiere autenticación.
+- `GET /api/events/:eventId/tickets` - Devuelve los tickets de un evento. Requiere ser `organizer` del evento o `admin`.
+- `PATCH /api/tickets/:ticketId/cancel` - Cancela un ticket. Requiere ser el dueño del ticket o `admin`.
+
+Las rutas protegidas utilizan la cookie `currentUser` con un JWT válido.
+
+#### Modelo Ticket
+
+El modelo contiene referencias a `user` y `event`, sin objetos embebidos, y los siguientes campos:
+
+- `user`: referencia `ObjectId` al usuario.
+- `event`: referencia `ObjectId` al evento.
+- `status`: estado del ticket.
+- `quantity`: cantidad de lugares reservados.
+- `reservationCode`: código único de reserva.
+- `createdAt`: fecha de creación automática.
+- `cancelledAt`: fecha de cancelación; es `null` mientras el ticket está activo.
+
+Los estados permitidos son:
+
+- `confirmed`: inscripción confirmada y ocupa cupo.
+- `pending`: inscripción pendiente.
+- `cancelled`: inscripción cancelada y no ocupa cupo.
+
+#### Flujo de inscripción
+
+La inscripción se valida en `ticket.service.js`:
+
+1. Se comprueba que el evento exista.
+2. El evento debe tener estado `published`.
+3. El evento no puede estar cancelado, finalizado ni tener una fecha pasada.
+4. `quantity` debe ser un número entero mayor que `0`.
+5. Se calculan los cupos ocupados contando únicamente tickets con estado `confirmed`.
+6. El usuario no puede tener otro ticket activo para el mismo evento.
+7. Se crea el ticket con estado `confirmed` y un `reservationCode` único.
+8. Se envía un email de confirmación mediante Nodemailer.
+
+Ejemplo de body para crear una inscripción:
+
+```json
+{
+    "quantity": 2
+}
+```
+
+#### Regla de cupos
+
+Los cupos disponibles se calculan de la siguiente manera:
+
+```text
+cupos disponibles = capacidad del evento - suma de quantity de tickets confirmed
+```
+
+Los tickets `cancelled` no se cuentan. Por eso, al cancelar un ticket, sus lugares quedan disponibles nuevamente sin eliminar el documento de la base de datos.
+
+#### Cancelación
+
+La cancelación no elimina el ticket. Cambia:
+
+```text
+status: cancelled
+cancelledAt: fecha actual
+```
+
+Solo puede cancelar el dueño del ticket o un usuario con rol `admin`. Un ticket que ya está cancelado no puede cancelarse nuevamente.
+
+#### Emails y variables de entorno
+
+Al confirmar o cancelar una inscripción se utiliza Nodemailer. Las credenciales no se guardan en el código y deben configurarse en `.env`:
+
+```env
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USER=tu_email@gmail.com
+MAIL_PASS=tu_app_password
+MAIL_FROM=tu_email@gmail.com
+```
+
+Estas variables también están incluidas en `.env.example`. `MAIL_PASS` debe ser una contraseña de aplicación cuando el proveedor de correo lo requiera.
+
 ## Flujo de datos
 Request → Router → Controller → Service → Repository → DAO → Model
 
@@ -151,13 +237,16 @@ backend2/
 │   ├── server.js
 │   ├── config/
 │   │   ├── config.js
+|   |   ├── mailer.config.js
 |   |   └── passport.config.js
 │   ├── controllers/
 │   │   ├── event.controller.js
-│   │   └── session.controller.js
+│   │   ├── session.controller.js
+│   │   └── ticket.controller.js
 │   ├── dao/
 │   │   ├── event.dao.js
 │   │   ├── session.dao.js
+│   │   ├── ticket.dao.js
 │   │   └── user.dao.js
 |   ├── dto/
 |   |   └── userDTO.js
@@ -168,17 +257,22 @@ backend2/
 │   ├── models/
 │   │   ├── eventModel.js
 │   │   ├── sessionModel.js
+│   │   ├── ticketModel.js
 │   │   └── userModel.js
 │   ├── repositories/
 │   │   ├── event.repository.js
 │   │   ├── session.repository.js
+│   │   ├── ticket.repository.js
 │   │   └── user.repository.js
 │   ├── routes/
 │   │   ├── event.router.js
-│   │   └── session.router.js
+│   │   ├── session.router.js
+│   │   └── ticket.router.js
 │   ├── services/
 │   │   ├── event.service.js
+|   |   ├── email.service.js
 |   |   ├── session.service.js
+|   |   └── ticket.service.js
 │   │   └── user.service.js
 │   └── utils/
 │       ├── hash.js
