@@ -64,25 +64,36 @@ export class TicketService {
     }
     async getEventTickets(eventId) {
         validateObjectId(eventId)
+        const event = await eventRepository.findEventById(eventId)
+        if (!event) {
+            throw businessError("Este evento no existe",404)
+        }
+        const isAdmin = user.role === "admin"
+        const isOwner = event.organizer?.toString() === user._id.toString()
+        if (!isAdmin && !isOwner) {
+            throw businessError("No tenes permisos para ver estos tickets",403)
+        }
         return ticketRepository.findByEvent(eventId)
     }
     async cancelTicket(ticketId,user) {
         validateObjectId(ticketId)
         const ticket = await ticketRepository.findById(ticketId)
         if (!ticket) {
-            throw businessError('Ticket no encontrado', 404)
+            throw businessError("Ticket no encontrado",404)
         }
-        if(ticket.status === "cancelled"){
-            throw businessError("Ticket ya cancelado", 409)
+        if (ticket.status === "cancelled") {
+            throw businessError("Ticket ya cancelado",409)
         }
-        const isOwner = ticket.user?._id? ticket.user._id.toString() === currentUser._id.toString(): ticket.user.toString() === currentUser._id.toString()
-        const event = await eventRepository.findEventById(ticket.event?._id ?? ticket.event)
-        const isEventOwner = event && event.organizer?.toString() === currentUser._id.toString()
-        const isAdmin = currentUser.role === 'admin'
-        if (!isOwner && !isAdmin && !isEventOwner) {
-            throw businessError('No tienes permisos para cancelar este ticket', 403)
+        const ticketUserId = ticket.user?._id || ticket.user
+        const isOwner = ticketUserId.toString() === user._id.toString()
+        const eventId = ticket.event?._id || ticket.event
+        const event = await eventRepository.findEventById(eventId)
+        const isEventOwner = event && event.organizer?.toString() === user._id.toString()
+        const isAdmin = user.role === "admin"
+        if (!isOwner && !isEventOwner && !isAdmin) {
+            throw businessError("No tenes permisos para cancelar este ticket",403)
         }
-        ticket.status = 'cancelled'
+        ticket.status = "cancelled"
         ticket.cancelledAt = new Date()
         return ticketRepository.save(ticket)
     }
