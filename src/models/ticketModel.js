@@ -2,12 +2,12 @@ import mongoose from "mongoose"
 const ticketSchema = new mongoose.Schema({
     user:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "user",
         required: true
     },
     event:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Event",
+        ref: "event",
         required: true
     },
     status: {
@@ -27,7 +27,7 @@ const ticketSchema = new mongoose.Schema({
     },
     cancelledAt: {
         type: Date,
-        defaul: null
+        default: null
     }
 },
 {

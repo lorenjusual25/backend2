@@ -3,6 +3,7 @@ import * as ticketRepository from '../repositories/ticket.repository.js'
 import * as eventRepository from '../repositories/event.repository.js'
 import {generateTicketCode} from '../utils/ticketCode.js'
 import EmailService from './email.service.js'
+import * as userRepository from '../repositories/user.repository.js'
 function businessError (message,status = 400) {
     const error = new Error(message)
     error.status = status
@@ -31,7 +32,7 @@ export class TicketService {
         if (event.status !== "published") {
             throw businessError("No se puede anotar a este evento",400)
         }
-        if (newDate(event.date) <= new Date()) {
+        if (new Date(event.date) <= new Date()) {
             throw businessError("Este evento ya terminó o no está disponible",400)
         }
         const existeTicket = await ticketRepository.findByUserAndEvent(user._id,event._id)
@@ -54,7 +55,7 @@ export class TicketService {
         try {
             await EmailService.sendTicketConfirmation(user,event,populatedTicket)
         } catch (error) {
-            console.error('No se pudo enviar el email:', emailError.message)
+            console.error('No se pudo enviar el email:', error.message)
         }
         return populatedTicket
     }
@@ -62,7 +63,7 @@ export class TicketService {
         validateObjectId(userId)
         return ticketRepository.findByUser(userId)
     }
-    async getEventTickets(eventId) {
+    async getEventTickets(eventId,user) {
         validateObjectId(eventId)
         const event = await eventRepository.findEventById(eventId)
         if (!event) {
@@ -90,12 +91,23 @@ export class TicketService {
         const event = await eventRepository.findEventById(eventId)
         const isEventOwner = event && event.organizer?.toString() === user._id.toString()
         const isAdmin = user.role === "admin"
-        if (!isOwner && !isEventOwner && !isAdmin) {
+        if (!isOwner && !isAdmin) {
             throw businessError("No tenes permisos para cancelar este ticket",403)
         }
         ticket.status = "cancelled"
         ticket.cancelledAt = new Date()
-        return ticketRepository.save(ticket)
+        const cancelledTicket = await ticketRepository.save(ticket)
+        const ticketUser = ticket.user?._id? ticket.user: await userRepository.findUserById(ticket.user)
+        try {
+            await EmailService.sendTicketCancellation(
+                ticketUser,
+                event,
+                cancelledTicket
+            )
+        } catch (error) {
+            console.error("No se pudo enviar el email:", error.message)
+        }
+        return cancelledTicket
     }
 }
 export default new TicketService()

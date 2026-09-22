@@ -6,7 +6,7 @@ export async function findByUserAndEvent(userId, eventId){
     return Ticket.findOne({user: userId, event: eventId, status: { $ne: 'cancelled' }})
 }
 export async function findById(id){
-    return Ticket.findById(id).populate("event")
+    return Ticket.findById(id).populate("event").populate("user","first_name last_name email")
 }
 export async function findByUser(userId){
     return Ticket.find({ user: userId }).populate("event", "title date location").sort({ createdAt:-1 })

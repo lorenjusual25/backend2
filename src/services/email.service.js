@@ -21,14 +21,25 @@ export class EmailService {
   }
   static async sendTicketCancellation(user, event, ticket) {
     if (!process.env.MAIL_HOST || !process.env.MAIL_USER || !process.env.MAIL_PASS) {
-      return
+        return
     }
-    const subject = `Cancelación de inscripción - ${event.title}`
     await transporter.sendMail({
-      from: process.env.MAIL_FROM || process.env.MAIL_USER,
-      to: user.email,
-      subject:"inscripcion cancelada",
-      html: `... el código <strong>${ticket.reservationCode}</strong> fue cancelado ...`
+        from: process.env.MAIL_FROM || process.env.MAIL_USER,
+        to: user.email,
+        subject: `Cancelación de inscripción - ${event.title}`,
+        html: `
+            <h2>Inscripción cancelada</h2>
+            <p>Hola ${user.first_name || user.email},</p>
+            <p>
+                Tu inscripción al evento
+                <strong>${event.title}</strong>
+                fue cancelada.
+            </p>
+            <p>
+                Código de reserva:
+                <strong>${ticket.reservationCode}</strong>
+            </p>
+        `
     })
   }
 }
