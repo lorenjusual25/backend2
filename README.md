@@ -1,5 +1,4 @@
 # Backend2
-REPOSITORIO PARA LA PRE-ENTREGA 4
 Repositorio de entregas para la materia Programacion Backend II: Diseño y Arquitectura Backend por Lorenzo Suarez Almeyra, temática de eventos y sesiones 
 
 ## Base de datos
@@ -41,19 +40,74 @@ npm run dev
 - `GET /api/events/:id`
 - `POST /api/events/createEvent`
 - `PUT /api/events/updateEvent/:id`
+- `PATCH /api/events/:id/status`
 - `GET /api/events/admin/getEvents`
+
+#### Filtros, paginación y ordenamiento
+
+El listado `GET /api/events` es público y acepta los siguientes parámetros de consulta:
+
+| Parámetro | Descripción | Ejemplo |
+| --- | --- | --- |
+| `status` | Filtra por estado: `draft`, `published`, `cancelled` o `finished` | `status=published` |
+| `category` | Filtra por categoría, sin distinguir mayúsculas y minúsculas | `category=musica` |
+| `location` | Filtra por ubicación, sin distinguir mayúsculas y minúsculas | `location=Buenos Aires` |
+| `dateFrom` | Fecha mínima del evento | `dateFrom=2026-10-01` |
+| `dateTo` | Fecha máxima del evento | `dateTo=2026-12-31` |
+| `page` | Número de página, comenzando en `1` | `page=1` |
+| `limit` | Cantidad de resultados por página, máximo `100` | `limit=10` |
+| `sort` | Ordena por `date`, `price`, `title`, `category` o `location`; anteponer `-` invierte el orden | `sort=-date` |
+
+Ejemplo de consulta combinada:
+
+```text
+GET /api/events?status=published&category=musica&dateFrom=2026-10-01&dateTo=2026-12-31&page=1&limit=10&sort=-date
+```
+
+La respuesta incluye los eventos y los datos de paginación:
+
+```json
+{
+    "message": "success",
+    "data": [],
+    "page": 1,
+    "limit": 10,
+    "total": 0,
+    "totalPages": 0
+}
+```
+
+#### Roles y acceso a eventos
+
+| Ruta | user | organizer | admin |
+| --- | --- | --- | --- |
+| `GET /api/events` | Público | Público | Público |
+| `GET /api/events/:id` | Público | Público | Público |
+| `POST /api/events/createEvent` | No permitido | Permitido | Permitido |
+| `PUT /api/events/updateEvent/:id` | No permitido | Solo sus eventos | Cualquier evento |
+| `PATCH /api/events/:id/status` | No permitido | Solo sus eventos | Cualquier evento |
+| `GET /api/events/admin/getEvents` | No permitido | No permitido | Permitido |
+
+Las rutas protegidas requieren la cookie `currentUser` con un JWT válido.
+
+#### Reglas de negocio
+
+- Los eventos tienen como campos obligatorios `title`, `description`, `category`, `date`, `location`, `capacity`, `price` y `organizer`.
+- `organizer` es una referencia a un usuario y se asigna automáticamente desde el usuario autenticado al crear el evento; no se toma del body.
+- `status` solo puede ser `draft`, `published`, `cancelled` o `finished`.
+- `capacity` debe ser mayor que `0` y `price` no puede ser negativo.
+- `title`, `description`, `category` y `location` son obligatorios.
+- No se pueden crear eventos con fecha pasada.
+- No se pueden modificar eventos cancelados.
+- Un organizador solo puede modificar o cambiar el estado de sus propios eventos.
+- Un administrador puede modificar o cambiar el estado de cualquier evento.
+- Cancelar un evento cambia su estado a `cancelled`; no se elimina físicamente.
+- No se puede publicar un evento finalizado o cancelado.
+- Si el evento solicitado no existe, la API responde con HTTP `404`.
 
 ### Autorización por roles
 
 El registro público siempre crea usuarios con el rol `user`. El rol enviado en el body se ignora para evitar que un usuario se asigne permisos de `organizer` o `admin`.
-
-| Ruta | user | organizer | admin |
-| --- | --- | --- | --- |
-| `GET /api/events` | Permitido | Permitido | Permitido |
-| `GET /api/events/:id` | No permitido | Permitido solo para sus eventos | Permitido |
-| `POST /api/events/createEvent` | No permitido | Permitido | Permitido |
-| `PUT /api/events/updateEvent/:id` | No permitido | Permitido solo para sus eventos | Permitido para cualquier evento |
-| `GET /api/events/admin/getEvents` | No permitido | No permitido | Permitido |
 
 Las rutas protegidas requieren una cookie `currentUser` con un JWT válido. Si no existe una sesión válida, la API responde `401 Unauthorized`:
 

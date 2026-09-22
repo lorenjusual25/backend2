@@ -3,7 +3,18 @@ const eventSchema = new Schema(
     {
         title: {
             type:String,
-            required:true
+            required:true,
+            trim:true
+        },
+        description: {
+            type:String,
+            required:true,
+            trim:true
+        },
+        category:{
+            type: String,
+            required: true,
+            trim: true
         },
         date: {
             type:Date,
@@ -11,12 +22,24 @@ const eventSchema = new Schema(
         },
         location: {
             type:String,
-            required:true
+            required:true,
+            trim:true
         },
         capacity: {
             type: Number,
+            required:true,
+            min:1
+        },
+        price: {
+            type: Number,
+            required: true,
             default:0,
-            min:0
+            min: 0
+        },
+        status: {
+            type: String,
+            enum: ["draft", "published", "cancelled", "finished"],
+            default: "draft"
         },
         organizer: {
             type: Schema.Types.ObjectId,
