@@ -89,7 +89,6 @@ export class TicketService {
         const isOwner = ticketUserId.toString() === user._id.toString()
         const eventId = ticket.event?._id || ticket.event
         const event = await eventRepository.findEventById(eventId)
-        const isEventOwner = event && event.organizer?.toString() === user._id.toString()
         const isAdmin = user.role === "admin"
         if (!isOwner && !isAdmin) {
             throw businessError("No tenes permisos para cancelar este ticket",403)

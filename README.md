@@ -228,6 +228,18 @@ Estas variables también están incluidas en `.env.example`. `MAIL_PASS` debe se
 ## Flujo de datos
 Request → Router → Controller → Service → Repository → DAO → Model
 
+## Arquitectura en capas
+
+- **Router:** define las rutas y aplica autenticación o autorización.
+- **Controller:** recibe la petición, obtiene sus datos y devuelve la respuesta.
+- **Service:** contiene las reglas de negocio, validaciones, cupos, permisos y emails.
+- **Repository:** conecta el dominio con el DAO y ofrece métodos para cada entidad.
+- **DAO:** realiza las operaciones directamente sobre los modelos de MongoDB.
+- **Model:** define la estructura y las validaciones de los documentos.
+- **DTO:** define qué datos se envían en las respuestas y evita exponer información sensible.
+
+Cada capa tiene una responsabilidad específica y se comunica con la siguiente sin acceder directamente a capas más internas.
+
 ## Estructura de carpetas
 
 ```text
@@ -249,6 +261,8 @@ backend2/
 │   │   ├── ticket.dao.js
 │   │   └── user.dao.js
 |   ├── dto/
+|   |   ├── eventDTO.js
+|   |   ├── ticketDTO.js
 |   |   └── userDTO.js
 │   ├── middlewares/
 |   |   ├── authentication.middleware.js

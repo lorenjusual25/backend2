@@ -1,4 +1,5 @@
 import ticketService from "../services/ticket.service.js"
+import { TicketDTO } from "../dto/ticketDTO.js"
 export async function createTicket (req,res,next) {
     try {
         const {eventId} = req.params
@@ -8,16 +9,11 @@ export async function createTicket (req,res,next) {
             eventId,
             quantity
         )
+        const ticketDTO = new TicketDTO(ticket)
         return res.status(201).json({
             status: "success",
             message: "Inscripcion realizada con exito",
-            data: {
-                id: ticket._id,
-                event: ticket.event,
-                quantity: ticket.quantity,
-                status: ticket.status,
-                reservationCode: ticket.reservationCode
-            }
+            data: ticketDTO
         })
     } catch (error) {
         next(error)
@@ -26,9 +22,10 @@ export async function createTicket (req,res,next) {
 export async function getMyTickets (req,res,next) {
     try {
         const tickets = await ticketService.getMyTickets(req.user._id)
+        const ticketsDTO = tickets.map(t => new TicketDTO(t))
         return res.status(200).json({
             status: "success",
-            payload: tickets
+            payload: ticketsDTO
         })
     } catch (error) {
         next(error)
@@ -38,9 +35,10 @@ export async function getEventTickets (req,res,next) {
     try {
         const {eventId} = req.params
         const tickets = await ticketService.getEventTickets(eventId,req.user)
+        const ticketsDTO = tickets.map(t => new TicketDTO(t))
         return res.status(200).json({
             status: "success",
-            payload: tickets
+            payload: ticketsDTO
         })
     } catch (error) {
         next(error)

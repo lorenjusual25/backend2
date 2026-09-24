@@ -1,6 +1,6 @@
 import { transporter } from '../config/mailer.config.js'
 export class EmailService {
-  static async sendTicketConfirmation(user, event, ticket) {
+  async sendTicketConfirmation(user, event, ticket) {
     if (!process.env.MAIL_HOST || !process.env.MAIL_USER || !process.env.MAIL_PASS) {
       return
     }
@@ -19,7 +19,7 @@ export class EmailService {
       `
     })
   }
-  static async sendTicketCancellation(user, event, ticket) {
+  async sendTicketCancellation(user, event, ticket) {
     if (!process.env.MAIL_HOST || !process.env.MAIL_USER || !process.env.MAIL_PASS) {
         return
     }
