@@ -131,9 +131,6 @@ Si el usuario está autenticado pero su rol no tiene permiso para acceder al rec
 
 ### Sesiones
 
-- `GET /api/sessions`
-- `GET /api/sessions/eventId/:eventId`
-- `POST /api/sessions/createSession`
 - `POST /api/sessions/register`
 - `POST /api/sessions/login`
 - `POST /api/sessions/logout`
@@ -258,7 +255,6 @@ backend2/
 │   │   └── ticket.controller.js
 │   ├── dao/
 │   │   ├── event.dao.js
-│   │   ├── session.dao.js
 │   │   ├── ticket.dao.js
 │   │   └── user.dao.js
 |   ├── dto/
@@ -271,12 +267,10 @@ backend2/
 │   │   └── error.middleware.js
 │   ├── models/
 │   │   ├── eventModel.js
-│   │   ├── sessionModel.js
 │   │   ├── ticketModel.js
 │   │   └── userModel.js
 │   ├── repositories/
 │   │   ├── event.repository.js
-│   │   ├── session.repository.js
 │   │   ├── ticket.repository.js
 │   │   └── user.repository.js
 │   ├── routes/
@@ -286,7 +280,6 @@ backend2/
 │   ├── services/
 │   │   ├── event.service.js
 |   |   ├── email.service.js
-|   |   ├── session.service.js
 |   |   └── ticket.service.js
 │   │   └── user.service.js
 │   └── utils/
@@ -545,3 +538,4 @@ Estas variables no deben incluirse en el repositorio. El archivo `.env.example` 
 - ![capture de POST api/events/createEvent con status 201 para rol organizer](img/posteventOrg201.png)
 - ![capture de ruta administratiiva con status 403 para rol organizer](img/adminEventOrg403.png)
 - ![capture de ruta administrativa con status 200 para rol admin](img/adminEventAdmin200.png)
+- ![coleccion de postman](img/postmanCollection.png)

@@ -45,7 +45,7 @@ passport.use('login',new LocalStrategy(
             }
             return done(null,user)
         } catch (error) {
-            return donde(error)
+            return done(error)
         }
     }
 ))

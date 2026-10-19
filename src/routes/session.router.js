@@ -1,24 +1,13 @@
 import {Router} from 'express'
-import {findAllSessions,
-    createSession,
-    findSessionsByEvent,
+import {
     register,
     login,
     getCurrentUser,
     logout,
     githubCallback
 } from '../controllers/session.controller.js'
-import {authorizeRoles,authEventOwnerOrAdmin} from '../middlewares/authorization.middleware.js'
-//import { authMiddleware } from '../middlewares/authentication.middleware.js'
 import passport from 'passport'
 const router = Router()
-const authenticate = passport.authenticate('current', {session: false})
-router.get('/', authenticate,authorizeRoles('admin'),findAllSessions)
-router.post('/createSession',authenticate,createSession)
-//router.get('/current',authMiddleware,getCurrentUser)
-router.get('/eventId/:eventId',authenticate,findSessionsByEvent)
-//router.post('/register',register)
-//router.post('/login',login)
 router.post('/logout',logout)
 router.post('/register',passport.authenticate('register',{
     session:false

@@ -47,14 +47,12 @@ export async function getEventTickets (req,res,next) {
 export async function cancelTicket (req,res,next) {
     try {
         const {ticketId} = req.params
-        const ticket = await ticketService.cancelTicket(
-            ticketId,
-            req.user
-        )
+        const ticket = await ticketService.cancelTicket(ticketId,req.user)
+        const ticketDTO = new TicketDTO(ticket)
         return res.status(200).json({
             status: "success",
             message: "Ticket cancelado",
-            payload: ticket
+            payload: ticketDTO
         })
     } catch (error) {
         next(error)
